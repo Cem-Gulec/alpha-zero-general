@@ -1,10 +1,10 @@
 from __future__ import print_function
+import os
 import sys
+from DamaLogic import Board
+import numpy as np
 sys.path.append('..')
 from Game import Game
-from .DamaLogic import Board
-import numpy as np
-
 
 class Dama(Game):
     """
@@ -43,8 +43,7 @@ class Dama(Game):
             actionSize: number of all possible actions
         """
         # return number of actions
-        # TODO: neden +1
-        return self.n * self.n + 1
+        return self.n**4 
 
     def getNextState(self, board, player, action):
         """
@@ -56,14 +55,12 @@ class Dama(Game):
         Returns:
             nextBoard: board after applying action
             nextPlayer: player who plays in the next turn (should be -player)
-        """
-        if action == self.n*self.n:
-            return (board, -player)
+        """    
+        
         b = Board(self.n)
         b.pieces = np.copy(board)
-        move = (int(action/self.n), action%self.n)
-        b.execute_move(move, player)
-        return (b.pieces, -player)
+        b.execute_move(action, player)
+        return b.pieces, -player
 
     def getValidMoves(self, board, player):
         """
@@ -81,11 +78,10 @@ class Dama(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
         legalMoves =  b.get_legal_moves(player)
-        if len(legalMoves)==0:
-            valids[-1]=1
-            return np.array(valids)
         for x, y in legalMoves:
-            valids[self.n*x+y]=1
+            x1, y1 = x
+            x2, y2 = y
+            valids[x1 + y1*self.n + x2*self.n**2 + y2*self.n**3] = 1
         return np.array(valids)
 
     def getGameEnded(self, board, player):
@@ -101,13 +97,60 @@ class Dama(Game):
         """
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if b.has_legal_moves(player):
-            return 0
-        if b.has_legal_moves(-player):
-            return 0
-        if b.countDiff(player) > 0:
+
+        # if b.has_legal_moves(player):
+        #     return 0
+        # if b.has_legal_moves(-player):
+        #     return 0
+        # if b.countDiff(player) > 0:
+        #     return 1
+
+        return self.temp_func(b, player)
+
+    def temp_func(self, board, player):
+        check = True
+        temp = {1: 0, -1: self.n - 1}
+        temp2 = {-1: -2, 1: 2}
+        temp3 = {1: [-1, -2], -1: [1, 2]}
+
+        is_game_over = temp2[player] in board.pieces[temp[player]]
+        if is_game_over:
             return 1
-        return -1
+         
+        for row in board.pieces:
+            for piece in row:
+                if piece in temp3[player]:
+                    check = False
+
+        if check:
+            return 1
+        
+        check = True
+        temp_player = -player
+
+        is_game_over = temp2[temp_player] in board.pieces[temp[temp_player]]
+        if is_game_over:
+            return -1
+         
+        for row in board.pieces:
+            for piece in row:
+                if piece in temp3[temp_player]:
+                    check = False
+
+        if check:
+            return -1
+
+        no_move_for_first_user = len(board.get_legal_moves(player)) == 0
+        temp_player = -player
+        no_move_for_second_user = len(board.get_legal_moves(temp_player)) == 0
+    
+        if no_move_for_first_user and no_move_for_second_user:
+            return 1e-4
+
+        elif no_move_for_first_user:
+            return 1e-4
+
+        return 0
 
     def getCanonicalForm(self, board, player):
         """
@@ -123,7 +166,7 @@ class Dama(Game):
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
-        return player*board
+        return player * board
 
     def getSymmetries(self, board, pi):
         """
@@ -189,3 +232,8 @@ class Dama(Game):
         for _ in range(n):
             print ("-", end="-")
         print("--")
+
+
+x = Dama(8)
+print(x.getInitBoard())
+print(x.getGameEnded(x.getInitBoard(), -1))
