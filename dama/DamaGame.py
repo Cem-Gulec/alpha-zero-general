@@ -1,7 +1,8 @@
 from __future__ import print_function
 import os
 import sys
-from DamaLogic import Board
+from .DamaLogic import Board
+from tafl.Digits import int2base
 import numpy as np
 sys.path.append('..')
 from Game import Game
@@ -43,7 +44,7 @@ class Dama(Game):
             actionSize: number of all possible actions
         """
         # return number of actions
-        return self.n**4 
+        return self.n**4 # damada kurallar gereği self.n * self.n * 4 olması gerekebilir
 
     def getNextState(self, board, player, action):
         """
@@ -59,7 +60,9 @@ class Dama(Game):
         
         b = Board(self.n)
         b.pieces = np.copy(board)
-        b.execute_move(action, player)
+        move = int2base(action,self.n,4)
+        print(move)
+        b.execute_move(move, player)
         return b.pieces, -player
 
     def getValidMoves(self, board, player):
@@ -78,9 +81,11 @@ class Dama(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
         legalMoves =  b.get_legal_moves(player)
-        for x, y in legalMoves:
-            x1, y1 = x
-            x2, y2 = y
+        for action in legalMoves:
+            x1 = action[0]
+            y1 = action[1]
+            x2 = action[2]
+            y2 = action[3]
             valids[x1 + y1*self.n + x2*self.n**2 + y2*self.n**3] = 1
         return np.array(valids)
 
@@ -168,8 +173,3 @@ class Dama(Game):
         for _ in range(n):
             print ("-", end="-")
         print("--")
-
-
-x = Dama(8)
-print(x.stringRepresentation(x.getInitBoard()))
-print(type(x.stringRepresentation(x.getInitBoard())))

@@ -28,7 +28,8 @@ class Board:
     
     # playera şimdilik ihtiyaç yok zaten hallediyoruz
     def execute_move(self, move, player):
-        c, t = move
+        c = (move[0], move[1])
+        t = (move[2], move[3])
         cx, cy = c
         tx, ty = t
 
@@ -40,14 +41,15 @@ class Board:
         (1 for white, -1 for black
         """
         color_map = {-2: -1, -1: -1, 1: 1, 2: 1, 0: 0}
-        moves = set()  # stores the legal moves.
+        moves = []  # stores the legal moves.
 
         # Get all the squares with pieces of the given color.
         for y in range(self.n):
             for x in range(self.n):
                 if color_map[self[x][y]] == color:
                     newmoves = self.get_moves_for_square((x,y))
-                    moves.update(newmoves)
+                    for i in newmoves:
+                        moves.append(i)
         return list(moves)
     
     def get_moves_for_square(self, square):
@@ -67,15 +69,16 @@ class Board:
         
         for row_oper, col_oper in rules[self.pieces[row][col]]:
             target_row, target_col = (row + row_oper, col + col_oper)
-            action = ((row, col), (target_row, target_col))
+            action = [row, col, target_row, target_col]
             if self.is_legal_action(action):
-                actions_for_a_piece.append(((row, col), (target_row, target_col)))
+                actions_for_a_piece.append(action)
 
         return actions_for_a_piece
     
     def is_legal_action(self, action):
         check_colors = {-2: "black", -1: "black", 1: "white", 2: "white", "white": -1, "black": 1}
-        current_pos, target_pos = action
+        current_pos = (action[0], action[1])
+        target_pos  = (action[2], action[3])
         row, col = current_pos
         target_row, target_col = target_pos
         if target_row < 0 or target_row >= self.n or target_col < 0 or target_col >= self.n:

@@ -3,8 +3,8 @@ import logging
 import coloredlogs
 
 from Coach import Coach
-from othello.OthelloGame import OthelloGame as Game
-from othello.pytorch.NNet import NNetWrapper as nn
+from dama.DamaGame import Dama as Game
+from dama.pytorch.NNet import NNetWrapper as nn
 from utils import *
 
 log = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ args = dotdict({
 
 def main():
     log.info('Loading %s...', Game.__name__)
-    g = Game(6)
+    g = Game(8)
 
     log.info('Loading %s...', nn.__name__)
     nnet = nn(g)
