@@ -98,59 +98,7 @@ class Dama(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
 
-        # if b.has_legal_moves(player):
-        #     return 0
-        # if b.has_legal_moves(-player):
-        #     return 0
-        # if b.countDiff(player) > 0:
-        #     return 1
-
-        return self.temp_func(b, player)
-
-    def temp_func(self, board, player):
-        check = True
-        temp = {1: 0, -1: self.n - 1}
-        temp2 = {-1: -2, 1: 2}
-        temp3 = {1: [-1, -2], -1: [1, 2]}
-
-        is_game_over = temp2[player] in board.pieces[temp[player]]
-        if is_game_over:
-            return 1
-         
-        for row in board.pieces:
-            for piece in row:
-                if piece in temp3[player]:
-                    check = False
-
-        if check:
-            return 1
-        
-        check = True
-        temp_player = -player
-
-        is_game_over = temp2[temp_player] in board.pieces[temp[temp_player]]
-        if is_game_over:
-            return -1
-         
-        for row in board.pieces:
-            for piece in row:
-                if piece in temp3[temp_player]:
-                    check = False
-
-        if check:
-            return -1
-
-        no_move_for_first_user = len(board.get_legal_moves(player)) == 0
-        temp_player = -player
-        no_move_for_second_user = len(board.get_legal_moves(temp_player)) == 0
-    
-        if no_move_for_first_user and no_move_for_second_user:
-            return 1e-4
-
-        elif no_move_for_first_user:
-            return 1e-4
-
-        return 0
+        return b.is_game_over(player)
 
     def getCanonicalForm(self, board, player):
         """
@@ -179,19 +127,7 @@ class Dama(Game):
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
-        assert(len(pi) == self.n**2+1)  # 1 for pass
-        pi_board = np.reshape(pi[:-1], (self.n, self.n))
-        l = []
-
-        for i in range(1, 5):
-            for j in [True, False]:
-                newB = np.rot90(board, i)
-                newPi = np.rot90(pi_board, i)
-                if j:
-                    newB = np.fliplr(newB)
-                    newPi = np.fliplr(newPi)
-                l += [(newB, list(newPi.ravel()) + [pi[-1]])]
-        return l
+        return [(board,pi)]
 
     def stringRepresentation(self, board):
         """
@@ -202,7 +138,7 @@ class Dama(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return board.tostring()
+        return str(board)
     
     def display(board):
         n = board.shape[0]
@@ -235,5 +171,5 @@ class Dama(Game):
 
 
 x = Dama(8)
-print(x.getInitBoard())
-print(x.getGameEnded(x.getInitBoard(), -1))
+print(x.stringRepresentation(x.getInitBoard()))
+print(type(x.stringRepresentation(x.getInitBoard())))

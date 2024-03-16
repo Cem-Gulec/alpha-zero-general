@@ -1,7 +1,4 @@
 class Board:
-    # list of all 8 directions on the board, as (x,y) offsets
-    __directions = [(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1)]
-
     def __init__(self, n = 8):
         "Set up initial board configuration."
 
@@ -17,13 +14,13 @@ class Board:
         # ilk hamle yaptıktan sonra -2, +2
             
         # hem taşlar hem oyuncular ("player") için durum aynı
-        # self.pieces[0]  = [-1] * self.n
-        # self.pieces[1]  = [-1] * self.n
-        # self.pieces[-2] = [1] * self.n
-        # self.pieces[-1] = [1] * self.n
+        self.pieces[0]  = [-1] * self.n
+        self.pieces[1]  = [-1] * self.n
+        self.pieces[-2] = [1] * self.n
+        self.pieces[-1] = [1] * self.n
         
-        self.pieces[3][3] = -1
-        self.pieces[4][3] = 1
+        # self.pieces[3][3] = -1
+        # self.pieces[4][3] = 1
     
     # add [][] indexer syntax to the Board
     def __getitem__(self, index): 
@@ -95,35 +92,52 @@ class Board:
 
         return True
 
+    def is_game_over(self, player):
+        check = True
+        temp = {1: 0, -1: self.n - 1}
+        temp2 = {-1: -2, 1: 2}
+        temp3 = {1: [-1, -2], -1: [1, 2]}
 
+        is_game_over = temp2[player] in self.pieces[temp[player]]
+        if is_game_over:
+            return 1
+         
+        for row in self.pieces:
+            for piece in row:
+                if piece in temp3[player]:
+                    check = False
 
-    
-    def countDiff(self, color):
-        """Counts the # pieces of the given color
-        (1 for white, -1 for black, 0 for empty spaces)"""
-        count = 0
-        for y in range(self.n):
-            for x in range(self.n):
-                if self[x][y]==color:
-                    count += 1
-                if self[x][y]==-color:
-                    count -= 1
-        return count
+        if check:
+            return 1
+        
+        check = True
+        temp_player = -player
 
+        is_game_over = temp2[temp_player] in self.pieces[temp[temp_player]]
+        if is_game_over:
+            return -1
+         
+        for row in self.pieces:
+            for piece in row:
+                if piece in temp3[temp_player]:
+                    check = False
+
+        if check:
+            return -1
+
+        no_move_for_first_user = len(self.get_legal_moves(player)) == 0
+        temp_player = -player
+        no_move_for_second_user = len(self.get_legal_moves(temp_player)) == 0
     
+        if no_move_for_first_user and no_move_for_second_user:
+            return 1e-4
+
+        # hamle sırası kimdeyse hamlesi yoksa
+        elif no_move_for_first_user:
+            return 1e-4
+
+        return 0       
     
-    def has_legal_moves(self, color):
-        for y in range(self.n):
-            for x in range(self.n):
-                if self[x][y]==color:
-                    newmoves = self.get_moves_for_square((x,y))
-                    if len(newmoves)>0:
-                        return True
-        return False
-    
-    
-    
-# x = Board(8)
-# for i in x.pieces:
-#     print(i)
-# print(x.get_legal_moves(-1))
+# x = Dama(8)
+# print(x.getInitBoard())
+# print(x.getGameEnded(x.getInitBoard(), -1))
