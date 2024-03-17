@@ -61,7 +61,6 @@ class Dama(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
         move = int2base(action,self.n,4)
-        print(move)
         b.execute_move(move, player)
         return b.pieces, -player
 
@@ -143,7 +142,7 @@ class Dama(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return str(board)
+        return board.tostring()
     
     def display(board):
         n = board.shape[0]
