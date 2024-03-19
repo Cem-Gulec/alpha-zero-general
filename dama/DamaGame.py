@@ -17,7 +17,7 @@ class Dama(Game):
 
     See othello/OthelloGame.py for an example implementation.
     """
-    def __init__(self, n):
+    def __init__(self, n = 8):
         self.n = n
 
     def getInitBoard(self):

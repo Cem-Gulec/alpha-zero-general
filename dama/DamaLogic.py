@@ -1,3 +1,5 @@
+import numpy as np
+
 class Board:
     def __init__(self, n = 8):
         "Set up initial board configuration."
@@ -21,6 +23,9 @@ class Board:
         
         # self.pieces[3][3] = -1
         # self.pieces[4][3] = 1
+
+    def __str__(self):
+        return np.array(self.pieces)
     
     # add [][] indexer syntax to the Board
     def __getitem__(self, index): 
@@ -33,7 +38,8 @@ class Board:
         cx, cy = c
         tx, ty = t
 
-        self[tx][ty] = self[cx][cy]
+        tmp = {-1: -2, 1: 2, -2: -2, 2: 2}
+        self[tx][ty] = tmp[self[cx][cy]]
         self[cx][cy] = 0
     
     def get_legal_moves(self, color):
@@ -44,8 +50,8 @@ class Board:
         moves = []  # stores the legal moves.
 
         # Get all the squares with pieces of the given color.
-        for y in range(self.n):
-            for x in range(self.n):
+        for x in range(self.n):
+            for y in range(self.n):
                 if color_map[self[x][y]] == color:
                     newmoves = self.get_moves_for_square((x,y))
                     for i in newmoves:
@@ -77,10 +83,7 @@ class Board:
     
     def is_legal_action(self, action):
         check_colors = {-2: "black", -1: "black", 1: "white", 2: "white", "white": -1, "black": 1}
-        current_pos = (action[0], action[1])
-        target_pos  = (action[2], action[3])
-        row, col = current_pos
-        target_row, target_col = target_pos
+        row, col, target_row, target_col = action
         if target_row < 0 or target_row >= self.n or target_col < 0 or target_col >= self.n:
             return False
         if col != target_col and self.pieces[target_row][target_col] == 0:
@@ -101,25 +104,30 @@ class Board:
         temp2 = {-1: -2, 1: 2}
         temp3 = {1: [-1, -2], -1: [1, 2]}
 
+        # en sona ulaştı mı
         is_game_over = temp2[player] in self.pieces[temp[player]]
         if is_game_over:
             return 1
-         
+        
+        # herhangi bir taş bitti mi
         for row in self.pieces:
             for piece in row:
                 if piece in temp3[player]:
                     check = False
 
+        # bittiyse bitir
         if check:
             return 1
         
         check = True
         temp_player = -player
 
+        # sona ulaştı mı
         is_game_over = temp2[temp_player] in self.pieces[temp[temp_player]]
         if is_game_over:
             return -1
-         
+        
+        # taş bitti mi
         for row in self.pieces:
             for piece in row:
                 if piece in temp3[temp_player]:
@@ -128,6 +136,7 @@ class Board:
         if check:
             return -1
 
+        # yapılabilecek hareket kalmadıysa 
         no_move_for_first_user = len(self.get_legal_moves(player)) == 0
         temp_player = -player
         no_move_for_second_user = len(self.get_legal_moves(temp_player)) == 0
