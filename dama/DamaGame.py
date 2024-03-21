@@ -60,7 +60,7 @@ class Dama(Game):
         
         b = Board(self.n)
         b.pieces = np.copy(board)
-        move = int2base(action,self.n,4)
+        move = int2base(action, self.n, 4)
         b.execute_move(move, player)
         return b.pieces, -player
 
@@ -80,11 +80,7 @@ class Dama(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
         legalMoves =  b.get_legal_moves(player)
-        for action in legalMoves:
-            x1 = action[0]
-            y1 = action[1]
-            x2 = action[2]
-            y2 = action[3]
+        for x1, y1, x2, y2 in legalMoves:
             valids[x1 + y1*self.n + x2*self.n**2 + y2*self.n**3] = 1
         return np.array(valids)
 
@@ -131,7 +127,7 @@ class Dama(Game):
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
-        return [(board,pi)]
+        return [(board, pi)]
 
     def stringRepresentation(self, board):
         """
