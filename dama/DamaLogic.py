@@ -20,9 +20,17 @@ class Board:
         self.pieces[1]  = [-1] * self.n
         self.pieces[-2] = [1] * self.n
         self.pieces[-1] = [1] * self.n
-        
-        # self.pieces[3][3] = -1
-        # self.pieces[4][3] = 1
+
+        '''self.pieces = [
+            [0, 0, -1, 0, 0, 0, 0, 0],
+            [0, -1, 0, 0, 0, 0, 0, 0],
+            [-1, 0, 0, -1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, -1, 0],
+            [0, 0, 1, 0, -1, -1, 1, 0],
+            [0, 1, -1, 1, 0, 0, 0, 1],
+            [0, 1, 0, 0, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ]'''
 
     def __str__(self):
         return np.array(self.pieces)
@@ -38,7 +46,7 @@ class Board:
         cx, cy = c
         tx, ty = t
 
-        tmp = {-1: -2, 1: 2, -2: -2, 2: 2}
+        tmp = {-1: -2, 1: 2, -2: -2, 2: 2, 0: 0}
         self[tx][ty] = tmp[self[cx][cy]]
         self[cx][cy] = 0
     
@@ -53,9 +61,17 @@ class Board:
         for x in range(self.n):
             for y in range(self.n):
                 if color_map[self[x][y]] == color:
-                    newmoves = self.get_moves_for_square((x,y))
+                    newmoves = self.get_moves_for_square((x, y))
                     for i in newmoves:
                         moves.append(i)
+
+        if color == -1:
+            sym_moves = []
+            for x1, y1, x2, y2 in moves:
+                n = self.n - 1
+                sym_moves.append([n - x1, n - y1, n - x2, n - y2])
+                moves = sym_moves
+
         return list(moves)
     
     def get_moves_for_square(self, square):

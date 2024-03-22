@@ -56,12 +56,16 @@ class Dama(Game):
         Returns:
             nextBoard: board after applying action
             nextPlayer: player who plays in the next turn (should be -player)
-        """    
-        
+        """
+
         b = Board(self.n)
         b.pieces = np.copy(board)
+        if player == -1:
+            b.pieces = np.rot90(b.pieces, 2)
         move = int2base(action, self.n, 4)
         b.execute_move(move, player)
+        if player == -1:
+            b.pieces = np.rot90(b.pieces, 2)
         return b.pieces, -player
 
     def getValidMoves(self, board, player):
@@ -114,7 +118,7 @@ class Dama(Game):
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
-        return player * board
+        return board
 
     def getSymmetries(self, board, pi):
         """
