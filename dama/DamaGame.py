@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import sys
-from .DamaLogic import Board
+from dama.DamaLogic import Board
 from tafl.Digits import int2base
 import numpy as np
 sys.path.append('..')
@@ -60,12 +60,8 @@ class Dama(Game):
 
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if player == -1:
-            b.pieces = np.rot90(b.pieces, 2)
         move = int2base(action, self.n, 4)
         b.execute_move(move, player)
-        if player == -1:
-            b.pieces = np.rot90(b.pieces, 2)
         return b.pieces, -player
 
     def getValidMoves(self, board, player):
@@ -83,7 +79,7 @@ class Dama(Game):
         valids = [0]*self.getActionSize()
         b = Board(self.n)
         b.pieces = np.copy(board)
-        legalMoves =  b.get_legal_moves(player)
+        legalMoves = b.get_legal_moves(player)
         for x1, y1, x2, y2 in legalMoves:
             valids[x1 + y1*self.n + x2*self.n**2 + y2*self.n**3] = 1
         return np.array(valids)
@@ -118,7 +114,10 @@ class Dama(Game):
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
-        return board
+        next_state = board * player
+        if player == -1:
+            next_state = np.rot90(next_state, 2)
+        return next_state
 
     def getSymmetries(self, board, pi):
         """

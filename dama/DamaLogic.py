@@ -65,6 +65,8 @@ class Board:
                     for i in newmoves:
                         moves.append(i)
 
+        # bu yapıda sürekli color = 1 geliyor
+        # --------------@@@@@@@@@@@@@@----------------------------------------------------------------------@@@@@@@@
         if color == -1:
             sym_moves = []
             for x1, y1, x2, y2 in moves:
@@ -116,19 +118,19 @@ class Board:
 
     def is_game_over(self, player):
         check = True
-        temp = {1: 0, -1: self.n - 1}
-        temp2 = {-1: -2, 1: 2}
-        temp3 = {1: [-1, -2], -1: [1, 2]}
+        last_line_check = {1: 0, -1: self.n - 1}  # siyah taşsa en alta, beyaz taşsa en üste bak
+        last_piece = {-1: -2, 1: 2}               # son satıra gelen taş kontrolü, zaten -2, 2 olmak zorunda
+        has_pieces = {1: [-1, -2], -1: [1, 2]}    # karşı tarafın taşları kaldı mı
 
         # en sona ulaştı mı
-        is_game_over = temp2[player] in self.pieces[temp[player]]
+        is_game_over = last_piece[player] in self.pieces[last_line_check[player]]
         if is_game_over:
             return 1
         
         # herhangi bir taş bitti mi
         for row in self.pieces:
             for piece in row:
-                if piece in temp3[player]:
+                if piece in has_pieces[player]:
                     check = False
 
         # bittiyse bitir
@@ -139,14 +141,14 @@ class Board:
         temp_player = -player
 
         # sona ulaştı mı
-        is_game_over = temp2[temp_player] in self.pieces[temp[temp_player]]
+        is_game_over = last_piece[temp_player] in self.pieces[last_line_check[temp_player]]
         if is_game_over:
             return -1
         
         # taş bitti mi
         for row in self.pieces:
             for piece in row:
-                if piece in temp3[temp_player]:
+                if piece in has_pieces[temp_player]:
                     check = False
 
         if check:
