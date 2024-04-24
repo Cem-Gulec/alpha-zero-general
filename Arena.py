@@ -56,6 +56,7 @@ class Arena():
                 log.debug(f'valids = {valids}')
                 assert valids[action] > 0
             board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            board = self.game.getCanonicalForm(board, curPlayer)  ############################## arena sorunu için, gerekirse sil #########
         if verbose:
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
