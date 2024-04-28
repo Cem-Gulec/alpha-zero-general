@@ -144,30 +144,30 @@ class Dama(Game):
         return board.tostring()
     
     def display(board):
-        n = board.shape[0]
+        # symbols for each type of piece
+        symbols = {
+            0:  ' ',  # Empty space
+            1:  '●',  # Regular piece for player 1
+            -1: '○',  # Regular piece for player 2
+            2:  '●',  # King piece for player 1
+            -2: '○'   # King piece for player 2
+        }
 
-        print("   ", end="")
-        for y in range(n):
-            print (y,"", end="")
-        print("")
-        print("  ", end="")
-        for _ in range(n):
-            print ("-", end="-")
-        print("--")
-        for y in range(n):
-            print(y, "|",end="")    # print the row #
-            for x in range(n):
-                piece = board[y][x]    # get the piece to print
-                if piece == -1: print("X ",end="")
-                elif piece == 1: print("X ",end="")
+        # ANSI escape codes for colors
+        colors = {
+            0: '\033[0m',    # No color
+            1: '\033[34m',   # Blue for player 1
+            -1: '\033[31m',  # Red  for player 2
+            2: '\033[34m',   # Blue for king of player 1
+            -2: '\033[31m'   # Red  for king of player 2
+        }
+
+        print("  +" + "---+" * board.shape[1])
+        for i, row in enumerate(board):
+            print(f"{i} | ", end='')
+            for value in row:
+                if value == 0:
+                    print("  | ", end='')
                 else:
-                    if x==n:
-                        print("-",end="")
-                    else:
-                        print("- ",end="")
-            print("|")
-
-        print("  ", end="")
-        for _ in range(n):
-            print ("-", end="-")
-        print("--")
+                    print(f"{colors[value]}{symbols[value]}\033[0m | ", end='')
+            print("\n  +" + "---+" * board.shape[1])
