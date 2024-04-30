@@ -3,7 +3,7 @@ import logging
 from tqdm import tqdm
 
 log = logging.getLogger(__name__)
-
+import numpy as np
 
 class Arena():
     """
@@ -55,8 +55,15 @@ class Arena():
                 log.error(f'Action {action} is not valid!')
                 log.debug(f'valids = {valids}')
                 assert valids[action] > 0
-            board, curPlayer = self.game.getNextState(board, curPlayer, action)
-            board = self.game.getCanonicalForm(board, curPlayer)  ############################## arena sorunu için, gerekirse sil #########
+
+            if curPlayer == -1:
+                tmp_board = self.game.getCanonicalForm(board, curPlayer)
+                board, curPlayer = self.game.getNextState(tmp_board, curPlayer, action)
+                board = self.game.getCanonicalForm(board, -1)
+            else:
+                board, curPlayer = self.game.getNextState(board, curPlayer, action)
+
+
         if verbose:
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
