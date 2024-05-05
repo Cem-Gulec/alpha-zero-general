@@ -4,8 +4,10 @@ import sys
 from dama.DamaLogic import Board
 from tafl.Digits import int2base
 import numpy as np
+
 sys.path.append('..')
 from Game import Game
+
 
 class Dama(Game):
     """
@@ -17,7 +19,8 @@ class Dama(Game):
 
     See othello/OthelloGame.py for an example implementation.
     """
-    def __init__(self, n = 8):
+
+    def __init__(self, n=8):
         self.n = n
 
     def getInitBoard(self):
@@ -44,7 +47,7 @@ class Dama(Game):
             actionSize: number of all possible actions
         """
         # return number of actions
-        return self.n**4 # damada kurallar gereği self.n * self.n * 4 olması gerekebilir
+        return self.n ** 4  # damada kurallar gereği self.n * self.n * 4 olması gerekebilir
 
     def getNextState(self, board, player, action):
         """
@@ -62,6 +65,7 @@ class Dama(Game):
         b.pieces = np.copy(board)
         move = int2base(action, self.n, 4)
         b.execute_move(move, player)
+        b.pieces = np.rot90(b.pieces, 2)
         return b.pieces, -player
 
     def getValidMoves(self, board, player):
@@ -76,12 +80,12 @@ class Dama(Game):
                         0 for invalid moves
         """
         # return a fixed size binary vector
-        valids = [0]*self.getActionSize()
+        valids = [0] * self.getActionSize()
         b = Board(self.n)
         b.pieces = np.copy(board)
         legalMoves = b.get_legal_moves(player)
         for x1, y1, x2, y2 in legalMoves:
-            valids[x1 + y1*self.n + x2*self.n**2 + y2*self.n**3] = 1
+            valids[x1 + y1 * self.n + x2 * self.n ** 2 + y2 * self.n ** 3] = 1
         return np.array(valids)
 
     def getGameEnded(self, board, player):
@@ -93,7 +97,7 @@ class Dama(Game):
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
                small non-zero value for draw.
-               
+
         """
         b = Board(self.n)
         b.pieces = np.copy(board)
@@ -114,10 +118,7 @@ class Dama(Game):
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
-        next_state = board * player
-        if player == -1:
-            next_state = np.rot90(next_state, 2)
-        return next_state
+        return player * board
 
     def getSymmetries(self, board, pi):
         """
@@ -142,24 +143,24 @@ class Dama(Game):
                          Required by MCTS for hashing.
         """
         return board.tostring()
-    
+
     def display(board):
         # symbols for each type of piece
         symbols = {
-            0:  ' ',  # Empty space
-            1:  '●',  # Regular piece for player 1
+            0: ' ',  # Empty space
+            1: '●',  # Regular piece for player 1
             -1: '○',  # Regular piece for player 2
-            2:  '●',  # King piece for player 1
-            -2: '○'   # King piece for player 2
+            2: '●',  # King piece for player 1
+            -2: '○'  # King piece for player 2
         }
 
         # ANSI escape codes for colors
         colors = {
-            0: '\033[0m',    # No color
-            1: '\033[34m',   # Blue for player 1
+            0: '\033[0m',  # No color
+            1: '\033[34m',  # Blue for player 1
             -1: '\033[31m',  # Red  for player 2
-            2: '\033[34m',   # Blue for king of player 1
-            -2: '\033[31m'   # Red  for king of player 2
+            2: '\033[34m',  # Blue for king of player 1
+            -2: '\033[31m'  # Red  for king of player 2
         }
 
         print("  +" + "---+" * board.shape[1])
