@@ -35,5 +35,11 @@ class HumanDamaPlayer():
         self.game = game
 
     def play(self, board):
-        # display(board)
-        pass
+        while True:
+            inp = input("Enter Action: ").split(", ")
+            x1, y1, x2, y2 = [int(i) for i in inp]
+            a = x1 + y1 * self.game.n + x2 * self.game.n ** 2 + y2 * self.game.n ** 3
+            valids = self.game.getValidMoves(board, 1)
+            if valids[a] == 0:
+                continue
+            return a
