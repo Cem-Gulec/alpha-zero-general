@@ -5,7 +5,10 @@ import coloredlogs
 from Coach import Coach
 from dama.DamaGame import Dama as Game
 from dama.pytorch.NNet import NNetWrapper as nn
+from dama.pytorch.NNet import args as nnet_args
 from utils import *
+
+import wandb
 
 log = logging.getLogger(__name__)
 
@@ -30,8 +33,27 @@ args = dotdict({
 
 
 def main():
+    excluded_keys = {'checkpoint', 'load_model', 'load_folder_file'}
+    filtered_args = {k: v for k, v in args.items() if k not in excluded_keys}
+
+    excluded_keys = {'cuda'}
+    filtered_nnet_args = {k: v for k, v in nnet_args.items() if k not in excluded_keys}
+
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="dama-project",
+
+        # track hyperparameters and run metadata
+        config={
+            **filtered_args,
+            **filtered_nnet_args
+        },
+
+        name = "wandb run name"
+    )
+
     log.info('Loading %s...', Game.__name__)
-    g = Game(6)
+    g = Game(8)
 
     log.info('Loading %s...', nn.__name__)
     nnet = nn(g)
@@ -51,6 +73,8 @@ def main():
 
     log.info('Starting the learning process 🎉')
     c.learn()
+
+    wandb.finish()
 
 
 if __name__ == "__main__":

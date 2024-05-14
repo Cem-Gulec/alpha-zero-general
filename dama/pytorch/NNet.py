@@ -14,6 +14,8 @@ import torch.optim as optim
 
 from .DamaNNet import DamaNNet as onnet
 
+import wandb
+
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
@@ -29,6 +31,7 @@ class NNetWrapper(NeuralNet):
         self.nnet = onnet(game, args)
         self.board_x, self.board_y = game.getBoardSize()
         self.action_size = game.getActionSize()
+        self.iter = 0
 
         if args.cuda:
             self.nnet.cuda()
@@ -46,9 +49,13 @@ class NNetWrapper(NeuralNet):
             v_losses = AverageMeter()
 
             batch_count = int(len(examples) / args.batch_size)
+            total_p = 0
+            total_v = 0
+            sample = 0
 
             t = tqdm(range(batch_count), desc='Training Net')
             for _ in t:
+                sample += 1
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
                 boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
                 boards = torch.FloatTensor(np.array(boards).astype(np.float64))
@@ -65,6 +72,9 @@ class NNetWrapper(NeuralNet):
                 l_v = self.loss_v(target_vs, out_v)
                 total_loss = l_pi + l_v
 
+                total_v += l_v.item()
+                total_p += l_pi.item()
+
                 # record loss
                 pi_losses.update(l_pi.item(), boards.size(0))
                 v_losses.update(l_v.item(), boards.size(0))
@@ -74,6 +84,16 @@ class NNetWrapper(NeuralNet):
                 optimizer.zero_grad()
                 total_loss.backward()
                 optimizer.step()
+
+            wandb.log({
+                f"pi_loss {self.iter}": total_p/sample,
+                "epoch": epoch + 1
+            })
+
+            wandb.log({
+                f"v_loss {self.iter}": total_v/sample,
+                "epoch": epoch + 1
+            })
 
     def predict(self, board):
         """
